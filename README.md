@@ -1,2 +1,3 @@
 # ppcfetch
-A simple console tool written in C. Provides basic system information.
+Ppcfetch is a simple console tool for Mac OS X PPC that provides basic system information.
+Written in C. Built and tested on Leopard. 
