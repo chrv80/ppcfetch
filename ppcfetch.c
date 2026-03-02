@@ -9,15 +9,15 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 char uptime[100], ramAmount[20], userName[50], comName[100],
 	osName[10], osVersion[10], disk[100], kernel[50], 
-	shell[50], cpu[60], date[60];
+	shell[50], cpu[60], model[50], date[60];
 
 
 // Get user and host info
-void getUserInfo() 
-{
+void getUserInfo() {
 	FILE *uName;							//User name
 	uName = popen("echo $USER", "r");
 	fscanf(uName, "%s", userName);
@@ -30,8 +30,7 @@ void getUserInfo()
 }
 
 // Get OS version
-void getOSInfo() 
-{
+void getOSInfo() {
 	FILE *OSName; 
 	OSName = popen("/usr/libexec/PlistBuddy -c \"Print:ProductName\" /System/Library/CoreServices/SystemVersion.plist", "r");		//Mac OS X
 	fscanf(OSName, "%[^\n]s", osName);
@@ -45,8 +44,7 @@ void getOSInfo()
 
 
 // Get kernel info
-void getKernelInfo() 
-{
+void getKernelInfo() {
 	FILE *kernelInfo; 
 	kernelInfo= popen("uname -rsm", "r");		//uname kernel info
 	fscanf(kernelInfo, "%[^\n]s", kernel);
@@ -55,8 +53,7 @@ void getKernelInfo()
 
 
 // Get uptime info
-void getUptime() 
-{
+void getUptime() {
 	//local variables define and init
 	char temp[20];
 	int len = 0;
@@ -76,8 +73,7 @@ void getUptime()
 
 
 // Get CPU info
-void getCPUInfo() 
-{
+void getCPUInfo() {
 	FILE *cpuinfo = popen("machine", "r");		//on intel mac should return intel cpu info
 	fscanf(cpuinfo, "%[^\n]s", cpu);
 	fclose(cpuinfo);
@@ -101,12 +97,26 @@ void getCPUInfo()
 	{
 		strcpy(cpu, "Power PC G5");
 	}
+	
+	char freq[50] = {0};
+	
+	FILE *cpufreq = popen("sysctl -n hw.cpufrequency", "r");
+	fscanf(cpufreq, "%[^\n]s", freq);
+	fclose(cpufreq);
+	
+	long hz = atol(freq);
+	sprintf(cpu +strlen(cpu), " @ %.0f MHz", hz / 1000000.0);
+}
+
+void getModelInfo() {
+	FILE *modelinfo = popen("sysctl -n hw.model", "r");	
+	fscanf(modelinfo, "%[^\n]s", model);
+	fclose(modelinfo);
 }
 
 
 // Get RAM info
-void getRAMInfo() 
-{
+void getRAMInfo() {
 	FILE *totalRam; 
 	totalRam= popen("hwprefs memory_size", "r");	//total ram amount
 	fscanf(totalRam, "%[^\n]s", ramAmount);
@@ -115,8 +125,7 @@ void getRAMInfo()
 
 
 // Get shell info
-void getShellInfo() 
-{
+void getShellInfo() {
 	FILE *shellInfo;
 	shellInfo = popen("echo $SHELL", "r");		//shell info
 	fscanf(shellInfo, "%s", shell);
@@ -125,8 +134,7 @@ void getShellInfo()
 
 
 // Get disk info
-void getDiskInfo() 
-{
+void getDiskInfo() {
 	//local variables define and init
 	char *percent;
 	char temp[100];
@@ -148,8 +156,7 @@ void getDiskInfo()
 
 
 // Get date info
-void getDate() 
-{
+void getDate() {
 	FILE *dateData; 
 	dateData= popen("date", "r");
 	fscanf(dateData, "%[^\n]s", date);
@@ -165,6 +172,7 @@ void init()
 	getKernelInfo();
 	getShellInfo();
 	getCPUInfo();
+	getModelInfo();
 	getRAMInfo();
 	getUptime();
 	getDate();
@@ -187,12 +195,12 @@ int main()
 	printf("\x1b[32m       /#######   /########\\          Hostname: %s ", comName);
 	printf("\x1b[33m     /#####################\\         OS: %s %s        \n", osName, osVersion);
 	printf("\x1b[33m     /#####################/          Kernel: %s     \n", kernel);
-	printf("\033[1;31m     /####################/           Uptime: %s  \n", uptime);
-	printf("\033[1;31m     /####################/            \n");  
-	printf("\033[0;31m     /#####################/          CPU: %s      \n", cpu);
-	printf("\033[0;31m      /#####################/         RAM: %s \n", ramAmount);        
+	printf("\033[1;31m     /####################/           Model: %s	\n", model);
+	printf("\033[1;31m     /####################/           CPU: %s      \n", cpu);  
+	printf("\033[0;31m     /#####################/          RAM: %s \n", ramAmount);
+	printf("\033[0;31m      /#####################/         Disk: %s\n", disk);        
 	printf("\x1b[35m       /###################/          Shell: %s      \n", shell); 
-	printf("\x1b[35m        /#################/           Disk: %s\n", disk);  
+	printf("\x1b[35m        /#################/           Uptime: %s  \n", uptime);  
 	printf("\x1b[36m         /###############/            Date: %s   \n", date);
 	printf("\x1b[36m          /####/   \\####/                                                            \n\n");
 	printf("\x1B[0m\n                                                                 \n");
