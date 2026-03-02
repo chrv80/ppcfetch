@@ -5,10 +5,10 @@ clean: ppcfetch
 	@rm ppcfetch
 
 install: ppcfetch 
-	@sudo cp ppcfetch /usr/sbin
-	@sudo chmod 755 /usr/sbin/ppcfetch
-	@echo "ppcfetch installed on /usr/sbin/"
+	@echo "ppcfetch installing in /usr/sbin/ ..."
+	@cp ppcfetch /usr/sbin
+	@chmod 755 /usr/sbin/ppcfetch
 
 uninstall: ppcfetch
-	@sudo rm /usr/sbin/ppcfetch
-	@echo "ppcfetch uninstalled successfully"
+	@echo "uninstalling ppcfetch..."
+	@rm /usr/sbin/ppcfetch
